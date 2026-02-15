@@ -65,32 +65,64 @@ class FinestraPrincipale(ctk.CTk):
         self.status.pack(side="bottom", pady=10)
         self.partitura_attuale = None
 
-    # --- POP-UP INFO ---
+   # --- POP-UP INFORMATIVI (VERSIONE ACCADEMICA) ---
 
     def mostra_info_guido(self):
+        """Spiegazione tecnica del metodo di Guido d'Arezzo."""
         w = ctk.CTkToplevel(self)
-        w.title("Info: Guido d'Arezzo")
-        w.geometry("500x300")
+        w.title("Approfondimento: Soggetto Cavato")
+        w.geometry("550x400")
         w.attributes("-topmost", True)
-        t = ("TEORIA DI GUIDO D'AREZZO\n\n"
-             "L'algoritmo utilizza la tecnica del 'Soggetto Cavato'.\n"
-             "Estrae le vocali dal testo e le mappa sull'esacordo guidoniano.\n\n"
-             "Mappatura: A=Do | E=Re | I=Mi | O=Fa | U=Sol\n\n"
-             "Sistema DETERMINISTICO.")
-        ctk.CTkLabel(w, text=t, justify="left", padx=20, pady=20).pack()
+        
+        testo_teoria = (
+            "METODO DI GUIDO D'AREZZO (XI SECOLO)\n"
+            "--------------------------------------------------\n\n"
+            "L'algoritmo implementa la tecnica del 'Soggetto Cavato dalle vocali',\n"
+            "un sistema di composizione deterministica basato sulla fonetica.\n\n"
+            "LOGICA DI FUNZIONAMENTO:\n"
+            "Il sistema isola le vocali del testo inserito e le associa alle sillabe\n"
+            "dell'esacordo guidoniano (la base del sistema musicale medievale).\n\n"
+            "MAPPATURA (Sillabe di Solmizzazione):\n"
+            "• A  --> UT (Do)\n"
+            "• E  --> RE\n"
+            "• I  --> MI\n"
+            "• O  --> FA\n"
+            "• U  --> SOL\n\n"
+            "NATURA ALGORITMICA:\n"
+            "Si tratta di un processo DETERMINISTICO: dato un input testuale,\n"
+            "l'output musicale è univoco e riproducibile. Rappresenta uno dei primi\n"
+            "esempi storici di crittografia musicale applicata."
+        )
+        label = ctk.CTkLabel(w, text=testo_teoria, justify="left", padx=25, pady=25, font=ctk.CTkFont(size=13))
+        label.pack()
 
     def mostra_info_mozart(self):
+        """Spiegazione tecnica del Gioco dei Dadi (Mozart)."""
         w = ctk.CTkToplevel(self)
-        w.title("Info: Mozart")
-        w.geometry("500x300")
+        w.title("Approfondimento: Musikalisches Würfelspiel")
+        w.geometry("550x450")
         w.attributes("-topmost", True)
-        t = ("IL GIOCO DEI DADI (MOZART)\n\n"
-             "Sistema di composizione STOCASTICA basato sulla combinatoria.\n"
-             "Il lancio di due dadi seleziona battute pre-scritte compatibili.\n\n"
-             "Ogni battuta rispetta le regole dell'armonia del XVIII secolo.\n"
-             "Sistema ALEATORIO.")
-        ctk.CTkLabel(w, text=t, justify="left", padx=20, pady=20).pack()
 
+        testo_teoria = (
+            "GIOCO DEI DADI DI W.A. MOZART (1787)\n"
+            "--------------------------------------------------\n\n"
+            "L'algoritmo implementa un sistema di COMPOSIZIONE ALEATORIA\n"
+            "basato sul calcolo combinatorio e sulla statistica stocastica.\n\n"
+            "LOGICA DI FUNZIONAMENTO:\n"
+            "Il sistema simula il lancio di due dadi. La somma ottenuta (2-12)\n"
+            "funge da indice per selezionare una specifica battuta musicale da\n"
+            "una matrice pre-compilata di frammenti armonici.\n\n"
+            "COERENZA ARMONICA:\n"
+            "Nonostante la selezione sia affidata al caso, il risultato è sempre\n"
+            "gradevole poiché Mozart progettò le battute in modo che fossero\n"
+            "tutte armonicamente compatibili tra loro (Concatenazione Verticale).\n\n"
+            "NATURA ALGORITMICA:\n"
+            "È un processo STOCASTICO (non-deterministico): il caso governa la\n"
+            "macro-struttura del brano, mentre il compositore 'umano' ha pre-definito\n"
+            "le micro-strutture (le battute) per garantire la qualità musicale."
+        )
+        label = ctk.CTkLabel(w, text=testo_teoria, justify="left", padx=25, pady=25, font=ctk.CTkFont(size=13))
+        label.pack()
     # --- LOGICHE DI GESTIONE ---
 
     def gestisci_cambio_tab(self):
