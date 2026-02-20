@@ -1,7 +1,8 @@
 import customtkinter as ctk # Grafica moderna
 import pygame # Audio interno
 import threading # Per non bloccare la finestra durante i calcoli
-from motore_musicale.traduttore import genera_spartito_guidoniano, MAPPA_NOTE 
+from motore_musicale.traduttore import genera_spartito_guidoniano
+
 from motore_musicale.gioco_dadi import genera_musica_dadi 
 
 class FinestraPrincipale(ctk.CTk):
@@ -74,25 +75,28 @@ class FinestraPrincipale(ctk.CTk):
         w.geometry("550x400")
         w.attributes("-topmost", True)
         
-        testo_teoria = (
-            "METODO DI GUIDO D'AREZZO (XI SECOLO)\n"
-            "--------------------------------------------------\n\n"
-            "L'algoritmo implementa la tecnica del 'Soggetto Cavato dalle vocali',\n"
-            "un sistema di composizione deterministica basato sulla fonetica.\n\n"
-            "LOGICA DI FUNZIONAMENTO:\n"
-            "Il sistema isola le vocali del testo inserito e le associa alle sillabe\n"
-            "dell'esacordo guidoniano (la base del sistema musicale medievale).\n\n"
-            "MAPPATURA (Sillabe di Solmizzazione):\n"
-            "• A  --> UT (Do)\n"
-            "• E  --> RE\n"
-            "• I  --> MI\n"
-            "• O  --> FA\n"
-            "• U  --> SOL\n\n"
-            "NATURA ALGORITMICA:\n"
-            "Si tratta di un processo DETERMINISTICO: dato un input testuale,\n"
-            "l'output musicale è univoco e riproducibile. Rappresenta uno dei primi\n"
-            "esempi storici di crittografia musicale applicata."
-        )
+       testo_teoria = (
+    "METODO DI GUIDO D'AREZZO - COMPOSIZIONE ALGORITMICA\n"
+    "--------------------------------------------------\n\n"
+    "COME FUNZIONA:\n"
+    "L'algoritmo prende il testo inserito dall'utente e individua\n"
+    "le vocali presenti (A, E, I, O, U).\n"
+    "Ogni vocale viene trasformata in una nota musicale.\n\n"
+    "ASSOCIAZIONE VOCALI → NOTE:\n"
+    "Ogni vocale è collegata a tre possibili note distribuite\n"
+    "su diverse ottave:\n"
+    "• A  --> G3, E4, C5\n"
+    "• E  --> A3, F4, D5\n"
+    "• I  --> B3, G4, E5\n"
+    "• O  --> C4, A4, F5\n"
+    "• U  --> D4, B4, G5\n\n"
+    "GENERAZIONE DELLA MELODIA:\n"
+    "Per ogni vocale trovata nel testo, il sistema sceglie\n"
+    "casualmente una delle tre note associate.\n"
+    "In questo modo la melodia cambia ogni volta,\n"
+    "ma segue sempre le regole stabilite dal metodo."
+)
+
         label = ctk.CTkLabel(w, text=testo_teoria, justify="left", padx=25, pady=25, font=ctk.CTkFont(size=13))
         label.pack()
 
@@ -137,15 +141,56 @@ class FinestraPrincipale(ctk.CTk):
         self.box_analisi.configure(state="disabled")
 
     def logica_guido(self, event=None):
-        self.pulisci_console()
-        testo = self.entry_testo.get()
-        if testo.strip():
-            self.box_analisi.configure(state="normal")
-            analisi = [f" • Vocale '{c}' -> Nota: {MAPPA_NOTE[c]}" for c in testo.lower() if c in MAPPA_NOTE]
-            header = "🔍 ANALISI GUIDO D'AREZZO\n" + "-"*45 + "\n"
-            self.box_analisi.insert("1.0", header + "\n".join(analisi))
-            self.box_analisi.configure(state="disabled")
-            self.partitura_attuale = genera_spartito_guidoniano(testo)
+
+    # Pulisce la console di analisi
+    self.pulisci_console()
+
+    # Prende il testo scritto dall'utente
+    testo = self.entry_testo.get()
+
+    # Se il campo non è vuoto
+    if testo.strip():
+
+        # Chiama la funzione e riceve:
+        # - lo spartito
+        # - il dizionario vocale → note
+        risultato = genera_spartito_guidoniano(testo)
+
+        # Se la funzione non ha trovato vocali
+        if risultato is None:
+            return
+
+        # Separiamo i due valori restituiti
+        spartito, mappa_guido = risultato
+
+        # Salviamo lo spartito per usarlo nei bottoni (audio / spartito)
+        self.partitura_attuale = spartito
+
+        # Prepariamo la console
+        self.box_analisi.configure(state="normal")
+
+        # Titolo della console
+        header = "🔍 ANALISI GUIDO D'AREZZO\n"
+        header += "-" * 40 + "\n\n"
+
+        self.box_analisi.insert("1.0", header)
+
+        # Convertiamo testo in minuscolo
+        testo = testo.lower()
+
+        # Per ogni carattere del testo
+        for c in testo:
+
+            # Se è una vocale presente nella mappa
+            if c in mappa_guido:
+
+                # Scriviamo quali note sono associate
+                riga = f"Vocale '{c}' → Note possibili: {mappa_guido[c]}\n"
+                self.box_analisi.insert("end", riga)
+
+        # Blocca la modifica della console
+        self.box_analisi.configure(state="disabled")
+
 
     def logica_mozart(self):
         """Genera il report dei dadi usando d1 e d2 dal tuo dizionario."""

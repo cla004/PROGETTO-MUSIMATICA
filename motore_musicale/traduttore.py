@@ -1,104 +1,84 @@
-import random # Importa la libreria per generare numeri casuali (fondamentale per la scelta della nota)
-from music21 import stream, note, tempo, metadata # Importa i componenti di music21 per gestire la musica
+import random  # Libreria per generare numeri casuali (scelta note casuale per ogni vocale)
+from music21 import stream, note, tempo, metadata  # Componenti di music21 per creare spartiti digitali
 
-def compositore_guido_music21(testo):
-    # Creiamo un oggetto 'Stream', che è un ogetto di music 21 per gestrie le note e le sue caratterstiche come 
-    # tempo, chiavi,accordi, ecc. In questo caso lo useremo per costruire la nostra melodia.
+def genera_spartito_guidoniano(testo):
+    """
+    Genera uno spartito music21 a partire dal testo fornito,
+    usando il metodo del "Soggetto Cavato" di Guido d'Arezzo.
+    Salva anche i file MIDI e MusicXML.
+    Restituisce lo stream music21 creato.
+    """
+
+    # --- CREA LO SPARTITO ---
+    # Lo Stream è l'oggetto principale di music21 dove si aggiungono note, accordi, tempo, ecc.
     s = stream.Stream()
     
-    # Aggiunge l'indicazione del tempo: qui impostiamo 90 battiti al minuto (un andamento moderato)
-    s.append(tempo.MetronomeMark(number=90))
+    # Imposta il tempo del brano (battiti per minuto)
+    s.append(tempo.MetronomeMark(number=90))  # 90 BPM, andamento moderato
     
-    # Inizializza il contenitore dei metadati (informazioni sul brano)
-    s.metadata = metadata.Metadata()
+    # --- METADATI DEL BRANO ---
+    s.metadata = metadata.Metadata()  # Inizializza contenitore metadati
+    s.metadata.title = f"Melodia di Guido per: {testo}"  # Titolo dello spartito
     
-    # Imposta il titolo dello spartito includendo il testo inserito 
-    s.metadata.title = f"Melodia di Guido per: {testo}"
-    
-    # Definiamo la lista delle altezze (pitch) disponibili: coprono circa due ottave
-    # Queste sono le note su cui "cicleranno" le nostre vocali
+    # --- DEFINIZIONE DELLE NOTE DISPONIBILI ---
+    # Qui definiamo le altezze (pitch) su cui si "cicleranno" le vocali del testo
+    # Sono distribuite su 3 ottave per variare la melodia
     pitch_list = [
-        'G3', 'A3', 'B3', 'C4', 'D4',  # Associa a: a, e, i, o, u (ottava bassa)
-        'E4', 'F4', 'G4', 'A4', 'B4',  # Associa a: a, e, i, o, u (ottava centrale)
-        'C5', 'D5', 'E5', 'F5', 'G5'   # Associa a: a, e, i, o, u (ottava alta)
+        'G3', 'A3', 'B3', 'C4', 'D4',  # Ottava bassa
+        'E4', 'F4', 'G4', 'A4', 'B4',  # Ottava centrale
+        'C5', 'D5', 'E5', 'F5', 'G5'   # Ottava alta
     ]
     
-    # Definiamo le 5 vocali standard che l'algoritmo cercherà nel testo
+    # Lista delle vocali base su cui l'algoritmo associa le note
     vocali_base = ['a', 'e', 'i', 'o', 'u']
     
-    # Creiamo un dizionario (mappa) dove ogni vocale inizialmente non ha note associate { 'a': [], 'e': [], ... }
-   # Creiamo un dizionario vuoto
-mappa_guido = {}
+    # --- CREAZIONE DELLA MAPPA VOCALI → NOTE ---
+    # Mappa ogni vocale a una lista di note disponibili
+    mappa_guido = {}
+    for v in vocali_base:
+        # Inizialmente ogni vocale non ha note associate
+        mappa_guido[v] = []
 
-# Per ogni elemento contenuto nella lista 'vocali_base'
-for v in vocali_base:
-    
-    # Inseriamo nel dizionario una nuova chiave 'v'
-    # associandole come valore una lista vuota
-    mappa_guido[v] = []
+    # Distribuisce ciclicamente le note della pitch_list alle 5 vocali
+    # i % 5 permette di ripartire dall'inizio delle vocali quando si superano le 5 note
+    for i in range(len(pitch_list)):
+        p = pitch_list[i]  # Nota corrente
+        vocale = vocali_base[i % 5]  # Determina a quale vocale assegnare la nota
+        mappa_guido[vocale].append(p)  # Aggiorna la mappa
 
-    
-    # Questo ciclo distribuisce le note contenute in 'pitch_list'
-# nelle 5 vocali presenti in 'vocali_base'
-for i in range(len(pitch_list)):
-    
-    # Recuperiamo la nota nella posizione i-esima
-    p = pitch_list[i]
-    
-    # L'operatore modulo (%) serve per far ripartire il conteggio
-    # dopo aver raggiunto la quinta vocale.
-    # In questo modo, dopo la 'u' si ricomincia dalla 'a'
-    vocale = vocali_base[i % 5]
-    
-    # Aggiungiamo la nota corrente (p)
-    # alla lista associata alla vocale corrispondente nel dizionario
-    mappa_guido[vocale].append(p)
-    
-    # Trasforma tutto il testo inserito dall'utente in minuscolo
-# così evitiamo problemi nel confronto con le vocali
-testo = testo.lower()
+    # --- ESTRAZIONE DELLE VOCALI DAL TESTO ---
+    testo = testo.lower()  # Trasforma il testo in minuscolo per confrontare correttamente le vocali
+    vocali_nel_testo = []  # Lista che conterrà solo le vocali trovate
 
-# Creiamo una lista vuota che conterrà solo le vocali trovate nel testo
-vocali_nel_testo = []
+    # Scansiona ogni carattere del testo
+    for char in testo:
+        if char in vocali_base:  # Se il carattere è una vocale
+            vocali_nel_testo.append(char)  # Aggiungi alla lista delle vocali del testo
 
-# Scorriamo ogni carattere del testo
-for char in testo:
+    # Se non ci sono vocali nel testo, termina la funzione
+    if not vocali_nel_testo:
+        print("Nessuna vocale trovata.")
+        return None
+
+    # --- CREAZIONE DELLA MELODIA ---
+    # Per ogni vocale nel testo, scegliamo una nota casuale dalla mappa
+    for v in vocali_nel_testo:
+        pitch_scelto = random.choice(mappa_guido[v])  # Nota casuale associata alla vocale
+        n = note.Note(pitch_scelto)  # Creazione dell'oggetto Note di music21
+        n.quarterLength = 1.0  # Durata della nota: 1.0 = semiminima (quarter note)
+        s.append(n)  # Aggiunge la nota allo spartito digitale
+
+    # --- SALVATAGGIO DEI FILE ---
+    # MIDI: file audio riproducibile in qualsiasi player o DAW
+    s.write('midi', fp='melodia_guido_m21.mid')
     
-    # Se il carattere corrente è una vocale tra quelle definite in vocali_base
-    if char in vocali_base:
-        
-        # Aggiungiamo la vocale alla lista
-        vocali_nel_testo.append(char)
-
-# Se l'utente ha scritto qualcosa senza vocali (esempio: "123")
-# il programma si interrompe qui
-if not vocali_nel_testo:
-    print("Nessuna vocale trovata.")
-    return
-
-# Inizia la fase di creazione della melodia
-for v in vocali_nel_testo:
+    # MusicXML: file spartito standard apribile in MuseScore, Finale, Sibelius, ecc.
+    s.write('musicxml', fp='melodia_guido.xml')
     
-    # Per ogni vocale trovata nel testo,
-    # scegliamo casualmente UNA nota tra quelle associate
-    pitch_scelto = random.choice(mappa_guido[v])
-    
-    # Creiamo l'oggetto nota compatibile con music21
-    n = note.Note(pitch_scelto)
-    
-    # Impostiamo la durata della nota:
-    # 1.0 corrisponde a una semiminima (quarter note)
-    n.quarterLength = 1.0
-    
-    # Aggiungiamo la nota allo spartito digitale
-    s.append(n)
+    # Messaggi finali di conferma
+    print(f"Melodia generata con successo! ({len(vocali_nel_testo)} note)")
+    print("File salvati: 'melodia_guido_m21.mid' e 'melodia_guido.xml'")
 
-# Creazione del file MIDI (ascoltabile con qualsiasi player o DAW)
-s.write('midi', fp='melodia_guido_m21.mid')
-
-# Creazione del file MusicXML (apribile in MuseScore, Finale, ecc.)
-s.write('musicxml', fp='melodia_guido.xml')
-
-# Messaggi finali di conferma
-print(f"Melodia generata con successo! ({len(vocali_nel_testo)} note)")
-print("File salvati: 'melodia_guido_m21.mid' e 'melodia_guido.xml'")
+    # --- RESTITUISCE LO SPARTITO ---
+    # Questo permette alla GUI di visualizzarlo o riprodurlo
+    return s,mappa_guido
